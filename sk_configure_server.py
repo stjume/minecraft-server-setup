@@ -58,7 +58,7 @@ from typing import Optional
 # NOTE: some of the defaults *might* be overwritten further down
 
 # how long do we want to wait for the server to start up before we display errors (by default)
-WAIT_CYCLES = 20
+WAIT_CYCLES = 10
 WAIT_TIME_PER_TRY = 3
 
 # how we try to connect to the server
