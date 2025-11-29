@@ -146,19 +146,19 @@ def display_err_msg(msgs: list[str]) -> None:
         subprocess.run(["msg", "*", line])
 
 
-def wait_for_server(wait_cyles: int = WAIT_TIME_PER_TRY, wait_time_per_try: float = WAIT_TIME_PER_TRY) -> bool:
+def wait_for_server(wait_cycles: int = WAIT_CYCLES, wait_time_per_try: float = WAIT_TIME_PER_TRY) -> bool:
     """
     Waits until server is up or terminates with warning.
 
     Args:
-        wait_cyles: Number of retry cycles to attempt connection.
+        wait_cycles: Number of retry cycles to attempt connection.
         wait_time_per_try: Time in seconds to wait between retry attempts.
 
     Returns:
         True if successfully connected, else False
     """
     success = False
-    for retry_i in range(1, wait_cyles+1):
+    for retry_i in range(1, wait_cycles + 1):
         # use any command that returns some value to check response
         cmd = build_command("gamerule keepInventory")
         try:
