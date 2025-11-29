@@ -36,6 +36,7 @@ Designed for SK jugend und medien workshops.
 ### Tools
 - **mcrcon.exe** must be located at the location specified in `MC_RCON_LOCATION` in `sk_configure_server.py` (default: `helpers/mcrcon.exe`)
   - Download: https://github.com/Tiiffi/mcrcon/releases/tag/v0.7.2 (windows-x86-64)
+- You can use our helper script `sk_download_mcrcon.bat` to download it
 
 ### Server Configuration
 The following settings **must** be present in `server.properties`:
@@ -55,3 +56,4 @@ This is already configured in the `server.properties` in this repository.
 - The initial version of this readme was AI generated based on the projects files.
 - Some standard documentation of the python code was AI generated.
 - All AI-generated code and text was audited by the authors.
+- All other usages of AI are clearly disclosed as such.
