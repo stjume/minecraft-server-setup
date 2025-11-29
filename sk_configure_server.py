@@ -73,7 +73,7 @@ CUSTOM_COMMANDS_FILE = 'sk_custom_commands.txt'
 
 # logging stuff
 now = datetime.now()
-LOG_FILE = Path(f"sk_startup_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.hour:02d}:{now.minute:02d}:{now.second:02d}.log")
+LOG_FILE = Path(f"sk_startup_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.hour:02d}_{now.minute:02d}_{now.second:02d}.log")
 
 
 def build_command(_cmd: str) -> list[str]:
