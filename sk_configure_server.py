@@ -53,18 +53,22 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from typing import Optional
 
+# how long do we want to wait for the server to start up before we display errors (by default)
 WAIT_CYCLES = 20
-WAIT_TIMES = 3
+WAIT_TIME_PER_TRY = 3
 
+# how we try to connect to the server
 RCON_HOST = "127.0.0.1"
 RCON_PORT = "25575"
 RCON_PASSWORD = "verySecurePasswordThatYouShouldntChange"
 
+# locations where we expect the config files
 GAME_RULES_FILE = 'sk_gamerule.properties'
 CUSTOM_COMMANDS_FILE = 'sk_custom_commands.txt'
 
+# logging stuff
 now = datetime.now()
-LOG_FILE = Path(f"sk_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.hour:02d}:{now.minute:02d}:{now.second:02d}.log")
+LOG_FILE = Path(f"sk_startup_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.hour:02d}:{now.minute:02d}:{now.second:02d}.log")
 
 
 def build_command(_cmd: str) -> list[str]:
@@ -82,10 +86,12 @@ def build_command(_cmd: str) -> list[str]:
 
 
 def send_command(cmd: list[str]) -> CompletedProcess[str]:
+    """basically a wrapper to run a shell command"""
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
 def build_error_message(reason: str) -> list[str]:
+    """takes a reason and builds a more sophisticated error message (meant to be used in critical failure situations)"""
 
     return [
         f"1/4 Error: SK-Internal Tooling: {reason} Turning PvP off automatically failed! The server might be running but not configured as expected.",
@@ -95,22 +101,31 @@ def build_error_message(reason: str) -> list[str]:
     ]
 
 
-def display_err_msg(msgs: list[str]):
+def display_err_msg(msgs: list[str]) -> None:
+    """
+    Displays a list of error messages via (`msg`)) within a windows error popup (one per list entry)
+    Sens a copy both the logger.
+
+    The split into multiple messages is needed bc msg seems to have a text limit...
+
+    Args:
+        msgs (list[str]): List of error message strings to be displayed and logged.
+    """
+    
 
     logger.error("\n".join(msgs))
-
-    for line in msgs:  # 200 chars per chunk
+    for line in msgs:
         subprocess.run(["msg", "*", line])
 
 
 # only waiting for connection (aka server start)
-def wait_for_server() -> bool:
+def wait_for_server(wait_cyles: int = WAIT_TIME_PER_TRY, wait_time_per_try: float = WAIT_TIME_PER_TRY) -> bool:
     """
     wait until server is up or terminate with warning
     returns True if successfully connected else False
     """
     success = False
-    for retry_i in range(1, WAIT_CYCLES+1):
+    for retry_i in range(1, wait_cyles+1):
         # use any command that returns some value to check response
         cmd = build_command("gamerule keepInventory")
         try:
@@ -121,8 +136,8 @@ def wait_for_server() -> bool:
             return False
 
         if result.stderr:
-            logger.info(f"Can't connect to server for config, retrying in {WAIT_TIMES}s (retry: {retry_i})")
-            time.sleep(WAIT_TIMES)
+            logger.info(f"Can't connect to server for config, retrying in {wait_time_per_try}s (retry: {retry_i})")
+            time.sleep(wait_time_per_try)
             continue
 
         # break loop as soon as we can establish a connection
@@ -143,7 +158,7 @@ def wait_for_server() -> bool:
 
 def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
     """
-    sets gamerules, returns number of errors encountered during that proces
+    sets gamerules, returns number of errors encountered during that process
     returns number of errors
     """
 
@@ -194,7 +209,7 @@ def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
 
 
 def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
-    """send arbitrary commands to server, returns number of errors"""
+    """send arbitrary commands to server (no success validation), returns number of (obvious) errors"""
     if not file.exists():
         logger.error(f"Can't find file '{file}', no commands executed.")
         return 1
@@ -212,6 +227,7 @@ def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
             logger.warning(f"Please use '{GAME_RULES_FILE}' for specifying gamerules. Rules specified in that file are validated for success. Will still execute your gamerule command.")
 
         cmd = build_command(line)
+        # TODO error handling for failed commands that may come in via stdout
         result = send_command(cmd)
 
         if result.stderr:
@@ -223,7 +239,8 @@ def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
 
 def end_loop(msg: str = None):
     """
-    keep shell window open to display errors
+    keep shell window open to display log
+    msg: optional message (meant to be the final verdict of the execution) to be displayed and sent to log
     """
     if msg:
         if msg.startswith("Error:"):
