@@ -167,7 +167,9 @@ def wait_for_server(wait_cycles: int = WAIT_CYCLES, wait_time_per_try: float = W
         try:
             result = send_command(cmd)
         except FileNotFoundError:
-            msgs = build_error_message(f"'mcrcon.exe' is not located in {MC_RCON_LOCATION.parent.as_posix()} - please download it!")
+            msg = f"'mcrcon.exe' is not located in {MC_RCON_LOCATION.parent.as_posix()} - please download it!"
+            logger.error(msg)
+            msgs = build_error_message(msg)
             display_err_msg(msgs)
             return False
 
@@ -181,7 +183,9 @@ def wait_for_server(wait_cycles: int = WAIT_CYCLES, wait_time_per_try: float = W
         break
 
     if not success:
-        err_msgs = build_error_message("Can't connect to server for configuration!")
+        msg = "Can't connect to server for configuration!"
+        logger.error(msg)
+        err_msgs = build_error_message(msg)
         logger.error("\n".join(err_msgs))
         display_err_msg(err_msgs)
         return False
@@ -204,7 +208,8 @@ def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
         Number of errors encountered during the process
     """
     if not file.exists():
-        err_msgs = build_error_message(f"Can't find file '{file}'.")
+        msg = f"Can't find file '{file}'."
+        err_msgs = build_error_message(msg)
         display_err_msg(err_msgs)
         logger.error("\n".join(err_msgs))
         return 1
@@ -318,7 +323,7 @@ def setup_logger(log_file: Path = LOG_FILE, level: int = logging.DEBUG) -> loggi
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
 
-    file_formatter = logging.Formatter("[%(asctime)s.%(msecs)03d][%(levelname)s][%(lineno)s] %(message)s")
+    file_formatter = logging.Formatter("[%(asctime)s.%(msecs)03d][%(levelname)s][%(funcName)s:%(lineno)s] %(message)s")
     stream_formatter = logging.Formatter("[%(asctime)s][%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
     file_handler.setFormatter(file_formatter)
