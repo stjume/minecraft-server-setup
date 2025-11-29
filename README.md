@@ -34,7 +34,7 @@ Designed for SK jugend und medien workshops.
 - **[Minecraft Server JAR[(https://www.minecraft.net/de-de/download/server)** (e.g., `minecraft_server.1.21.10.jar`)
 
 ### Tools
-- **mcrcon.exe** must be located at `helpers/mcrcon.exe`
+- **mcrcon.exe** must be located at the location specified in `MC_RCON_LOCATION` in `sk_configure_server.py` (default: `helpers/mcrcon.exe`)
   - Download: https://github.com/Tiiffi/mcrcon/releases/tag/v0.7.2 (windows-x86-64)
 
 ### Server Configuration
