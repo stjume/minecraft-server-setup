@@ -316,7 +316,7 @@ def setup_logger(log_file: Path = LOG_FILE, level: int = logging.DEBUG) -> loggi
     console_handler.setLevel(level)
 
     file_formatter = logging.Formatter("[%(asctime)s.%(msecs)03d][%(levelname)s][%(lineno)s] %(message)s")
-    stream_formatter = logging.Formatter("[%(asctime)s.%(msecs)03d][%(levelname)s] %(message)s")
+    stream_formatter = logging.Formatter("[%(asctime)s][%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
     file_handler.setFormatter(file_formatter)
     console_handler.setFormatter(stream_formatter)
