@@ -10,12 +10,12 @@ Please refer to the variables GAME_RULES_FILE and CUSTOM_COMMANDS_FILE
 for the expected location and name of those files
 
 It requires the program `mcrcon` to be present in:
-    ./helpers/mcrcon.exe
+    MC_RCON_LOCATION (default: './helpers/mcrcon.exe')
 
 `mcrcon` can be downloaded from:
     https://github.com/Tiiffi/mcrcon/releases/tag/v0.7.2  (windows-x86-64)
 
-`mcrcon` is used to disable PvP immediately after the server boots.
+`mcrcon` is used to disable PvP immediately after the server starts up.
 
 The following settings **must** exist in `server.properties`:
     enable-rcon=true
@@ -27,6 +27,8 @@ If everything works correctly, you should see the following in the
 *Log and Chat* output inside the Minecraft server console:
 
     [Not Secure] [Rcon] SK Tooling: Everything is ready to go!
+    
+Or you can check the log file `sk_startup_log_*`
 
 (The “not secure” warning is normal — this RCON usage is inside a
 local network and should be fine.)
@@ -53,6 +55,8 @@ from pathlib import Path
 from subprocess import CompletedProcess
 from typing import Optional
 
+# NOTE: some of the defaults *might* be overwritten further down
+
 # how long do we want to wait for the server to start up before we display errors (by default)
 WAIT_CYCLES = 20
 WAIT_TIME_PER_TRY = 3
@@ -61,6 +65,7 @@ WAIT_TIME_PER_TRY = 3
 RCON_HOST = "127.0.0.1"
 RCON_PORT = "25575"
 RCON_PASSWORD = "verySecurePasswordThatYouShouldntChange"
+MC_RCON_LOCATION = Path("helpers/mcrcon.exe")
 
 # locations where we expect the config files
 GAME_RULES_FILE = 'sk_gamerule.properties'
@@ -72,10 +77,19 @@ LOG_FILE = Path(f"sk_startup_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.h
 
 
 def build_command(_cmd: str) -> list[str]:
-    """assumes mcrcon is located at helpers/mcrcon.exe"""
+    """
+    Builds an mcrcon command ready to be passed to a subprocess.
 
+    Assumes mcrcon is located at helpers/mcrcon.exe.
+
+    Args:
+        _cmd: The RCON command to execute.
+
+    Returns:
+        A list of strings representing the complete mcrcon command.
+    """
     c = [
-        Path("helpers/mcrcon.exe"),
+        MC_RCON_LOCATION,
         "-H", RCON_HOST,
         "-P", RCON_PORT,
         "-p", RCON_PASSWORD,
@@ -86,13 +100,28 @@ def build_command(_cmd: str) -> list[str]:
 
 
 def send_command(cmd: list[str]) -> CompletedProcess[str]:
-    """basically a wrapper to run a shell command"""
+    """
+    Executes a shell command and returns the result.
+
+    Args:
+        cmd: list of strings representing the command (passed to subprocess.run)
+
+    Returns:
+        CompletedProcess object containing the command execution result
+    """
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
 def build_error_message(reason: str) -> list[str]:
-    """takes a reason and builds a more sophisticated error message (meant to be used in critical failure situations)"""
+    """
+    Builds a structured error message for critical failure situations.
 
+    Args:
+        reason: The reason for the error to include in the message
+
+    Returns:
+        A list of error message strings formatted for display (via display_err_msg())
+    """
     return [
         f"1/4 Error: SK-Internal Tooling: {reason} Turning PvP off automatically failed! The server might be running but not configured as expected.",
         f"2/4 Use '/gamerule pvp false' ingame to disable it! Have a look at '{GAME_RULES_FILE}' and '{CUSTOM_COMMANDS_FILE}' to check if any other important configuration might have failed. (Remember.: PvP is not allowed in Workshops).",
@@ -103,26 +132,30 @@ def build_error_message(reason: str) -> list[str]:
 
 def display_err_msg(msgs: list[str]) -> None:
     """
-    Displays a list of error messages via (`msg`)) within a windows error popup (one per list entry)
-    Sens a copy both the logger.
+    Displays error messages via Windows popup and logs them.
 
-    The split into multiple messages is needed bc msg seems to have a text limit...
+    Displays via `msg` command within a Windows error popup (one per list entry). Also sends a copy to the logger.
+
+    The split into multiple messages is needed because msg seems to have a text limit.
 
     Args:
-        msgs (list[str]): List of error message strings to be displayed and logged.
+        msgs: List of error message strings to be displayed and logged
     """
-    
-
     logger.error("\n".join(msgs))
     for line in msgs:
         subprocess.run(["msg", "*", line])
 
 
-# only waiting for connection (aka server start)
 def wait_for_server(wait_cyles: int = WAIT_TIME_PER_TRY, wait_time_per_try: float = WAIT_TIME_PER_TRY) -> bool:
     """
-    wait until server is up or terminate with warning
-    returns True if successfully connected else False
+    Waits until server is up or terminates with warning.
+
+    Args:
+        wait_cyles: Number of retry cycles to attempt connection.
+        wait_time_per_try: Time in seconds to wait between retry attempts.
+
+    Returns:
+        True if successfully connected, else False
     """
     success = False
     for retry_i in range(1, wait_cyles+1):
@@ -131,7 +164,7 @@ def wait_for_server(wait_cyles: int = WAIT_TIME_PER_TRY, wait_time_per_try: floa
         try:
             result = send_command(cmd)
         except FileNotFoundError:
-            msgs = build_error_message("'mcrcon.exe' is not located in ./helpers/ - please download it!")
+            msgs = build_error_message(f"'mcrcon.exe' is not located in {MC_RCON_LOCATION.parent.as_posix()} - please download it!")
             display_err_msg(msgs)
             return False
 
@@ -158,10 +191,15 @@ def wait_for_server(wait_cyles: int = WAIT_TIME_PER_TRY, wait_time_per_try: floa
 
 def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
     """
-    sets gamerules, returns number of errors encountered during that process
-    returns number of errors
-    """
+    Sets gamerules from a configuration file by sending them to server
+    Expects the server to be available for connection
 
+    Args:
+        file: Path to the gamerule configuration file. Defaults to GAME_RULES_FILE
+
+    Returns:
+        Number of errors encountered during the process
+    """
     if not file.exists():
         err_msgs = build_error_message(f"Can't find file '{file}'.")
         display_err_msg(err_msgs)
@@ -209,7 +247,16 @@ def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
 
 
 def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
-    """send arbitrary commands to server (no success validation), returns number of (obvious) errors"""
+    """
+    Sends arbitrary commands to server (without success validation)
+    Expects the server to be available for connection
+
+    Args:
+        file: Path to the custom commands file. Defaults to CUSTOM_COMMANDS_FILE
+
+    Returns:
+        Number of obvious errors encountered during execution
+    """
     if not file.exists():
         logger.error(f"Can't find file '{file}', no commands executed.")
         return 1
@@ -237,10 +284,13 @@ def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
     return errors
 
 
-def end_loop(msg: str = None):
+def end_loop(msg: str = None) -> None:
     """
-    keep shell window open to display log
-    msg: optional message (meant to be the final verdict of the execution) to be displayed and sent to log
+    Keeps shell window open to display log
+    Is meat to NEVER return
+
+    Args:
+        msg: Optional message (meant to be the final verdict of the execution) to be displayed and sent to log.
     """
     if msg:
         if msg.startswith("Error:"):
@@ -254,8 +304,20 @@ def end_loop(msg: str = None):
         time.sleep(100)
 
 
-def setup_logger(log_file: Path, level: int = logging.DEBUG) -> logging.Logger:
-    """setup logging"""
+def setup_logger(log_file: Path = LOG_FILE, level: int = logging.DEBUG) -> logging.Logger:
+    """
+    Sets up logging with file and console handler
+
+    Configures a logger with both file and console output handlers, and sets
+    up exception handling to log uncaught exceptions.
+
+    Args:
+        log_file: Path to the log file where logs will be written (defaults to LOG_FILE)
+        level: Logging level (defaults to DEBUG)
+
+    Returns:
+        Configured logger instance
+    """
 
     # https://stackoverflow.com/a/60523940
     def exc_handler(exctype: type[BaseException], value: BaseException, tb: Optional[types.TracebackType]) -> None:
@@ -270,18 +332,15 @@ def setup_logger(log_file: Path, level: int = logging.DEBUG) -> logging.Logger:
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(level)
 
-    # ---- Console Handler ----
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
 
-    # ---- Formatter ----
     file_formatter = logging.Formatter("[%(asctime)s.%(msecs)03d][%(levelname)s][%(lineno)s] %(message)s")
     stream_formatter = logging.Formatter("[%(asctime)s.%(msecs)03d][%(levelname)s] %(message)s")
 
     file_handler.setFormatter(file_formatter)
     console_handler.setFormatter(stream_formatter)
 
-    # ---- Add handlers to logger ----
     _logger.addHandler(file_handler)
     _logger.addHandler(console_handler)
 
@@ -292,6 +351,7 @@ logger = setup_logger(LOG_FILE)
 
 
 if __name__ == '__main__':
+
     logger.info(f"Here is '{__file__}.py', logs are written to '{LOG_FILE.as_posix()}'")
 
     # connect
@@ -309,6 +369,7 @@ if __name__ == '__main__':
         send_command(build_command(f"say SK Tooling: Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please check terminal!"))
         end_loop(f"Warning: Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}")
 
+    # end of the endgame
     send_command(build_command("say SK Tooling: Everything is ready to go! Have fun :D ~chris"))
 
     end_loop(f"Finished server configuration with {gamerule_errors + command_errors} errors.")
