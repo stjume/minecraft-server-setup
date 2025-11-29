@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-Automated tooling for starting and configuring a (local) Minecraft server with a custom set of gamerules and commands.
+Automated tooling for starting and configuring a (local) Minecraft server under Windows with a custom set of gamerules and commands.
 Designed for SK jugend und medien workshops.
 
 ## Features
@@ -31,7 +31,7 @@ Designed for SK jugend und medien workshops.
 ### Software
 - **Java JDK 21** (path configured in `Start.bat`)
 - **Python 3** (for configuration script)
-- **Minecraft Server JAR** (e.g., `minecraft_server.1.21.10.jar`)
+- **[Minecraft Server JAR[(https://www.minecraft.net/de-de/download/server)** (e.g., `minecraft_server.1.21.10.jar`)
 
 ### Tools
 - **mcrcon.exe** must be located at `helpers/mcrcon.exe`
@@ -43,6 +43,10 @@ The following settings **must** be present in `server.properties`:
 enable-rcon=true
 rcon.password=verySecurePasswordThatYouShouldntChange
 ```
+This is already configured in the `server.properties` in this repository.
 
 **Note**: The RCON password must match `RCON_PASSWORD` in `sk_configure_server.py` (default: `verySecurePasswordThatYouShouldntChange`).
 
+## Supported Versions
+### Tested
+- 1.21.10
