@@ -52,8 +52,19 @@ This is already configured in the `server.properties` in this repository.
 ### Tested
 - 1.21.10
 
+## About
+Since Minecraft `1.21.10`, PvP is no longer a setting in the `server.properties` instead it's a game rule.
+
+PvP is prohibited in our workshops so we had to find a way to reliably disable it, every time a new world is set up.
+
+This is why we developed this tooling for our internal use.
+During development, we decided to expand the scope from "just disabling pvp" to a wider, more general approach.
+
+Since we're pretty happy and confident with our solution we decided to open source it and make it available for other institutions as well.
+
+
 ## AI disclosure
 - The initial version of this readme was AI generated based on the projects files.
 - Some standard documentation of the python code was AI generated.
 - All AI-generated code and text was audited by the authors.
-- All other usages of AI are clearly disclosed as such.
+- All other usages of AI are clearly disclosed as such in the related files.
