@@ -64,7 +64,7 @@ GAME_RULES_FILE = 'sk_gamerule.properties'
 CUSTOM_COMMANDS_FILE = 'sk_custom_commands.txt'
 
 now = datetime.now()
-LOG_FILE = Path(f"sk_log_{now.year}_{now.month}_{now.day}-{now.hour}:{now.minute}:{now.second}.log")
+LOG_FILE = Path(f"sk_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.hour:02d}:{now.minute:02d}:{now.second:02d}.log")
 
 
 def build_command(_cmd: str) -> list[str]:
@@ -88,25 +88,37 @@ def send_command(cmd: list[str]) -> CompletedProcess[str]:
 def build_error_message(reason: str) -> list[str]:
 
     return [
-        f"1/3 Error: SK-Internal Tooling: {reason} Turning PvP off automatically failed! The server might be running but not configured as expected.",
-        f"2/3 Use '/gamerule pvp false' ingame to disable it! Have a look at '{GAME_RULES_FILE}' and '{CUSTOM_COMMANDS_FILE}' to check if any other important configuration might have failed. (Remember.: PvP is not allowed in Workshops).",
-        f"3/3 Please report this incident! (What template did you use? Was it the first start of the server? Were '{GAME_RULES_FILE}' and '{CUSTOM_COMMANDS_FILE}' present? Any other remarks?)"
+        f"1/4 Error: SK-Internal Tooling: {reason} Turning PvP off automatically failed! The server might be running but not configured as expected.",
+        f"2/4 Use '/gamerule pvp false' ingame to disable it! Have a look at '{GAME_RULES_FILE}' and '{CUSTOM_COMMANDS_FILE}' to check if any other important configuration might have failed. (Remember.: PvP is not allowed in Workshops).",
+        f"3/4 Please report this incident! (What template did you use? Was it the first start of the server? Were '{GAME_RULES_FILE}' and '{CUSTOM_COMMANDS_FILE}' present? Any other remarks?)",
+        f"4/4 You can find the full log of this script execution at '{LOG_FILE.as_posix()}'"
     ]
 
 
 def display_err_msg(msgs: list[str]):
+
+    logger.error("\n".join(msgs))
+
     for line in msgs:  # 200 chars per chunk
         subprocess.run(["msg", "*", line])
 
 
 # only waiting for connection (aka server start)
 def wait_for_server() -> bool:
-    """wait until server is up or terminate with warning"""
+    """
+    wait until server is up or terminate with warning
+    returns True if successfully connected else False
+    """
     success = False
     for retry_i in range(1, WAIT_CYCLES+1):
         # use any command that returns some value to check response
         cmd = build_command("gamerule keepInventory")
-        result = send_command(cmd)
+        try:
+            result = send_command(cmd)
+        except FileNotFoundError:
+            msgs = build_error_message("'mcrcon.exe' is not located in ./helpers/ - please download it!")
+            display_err_msg(msgs)
+            return False
 
         if result.stderr:
             logger.info(f"Can't connect to server for config, retrying in {WAIT_TIMES}s (retry: {retry_i})")
