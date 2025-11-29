@@ -30,6 +30,8 @@ set JAVA_HOME="C:\Program Files\Java\jdk-21"
 start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar minecraft_server.1.21.10.jar
 
 :: Custom server config
-python configure_server.py
+python sk_configure_server.py
+
+pause
 
 endlocal

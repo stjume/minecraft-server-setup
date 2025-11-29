@@ -284,26 +284,6 @@ def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
     return errors
 
 
-def end_loop(msg: str = None) -> None:
-    """
-    Keeps shell window open to display log
-    Is meat to NEVER return
-
-    Args:
-        msg: Optional message (meant to be the final verdict of the execution) to be displayed and sent to log.
-    """
-    if msg:
-        if msg.startswith("Error:"):
-            logger.error(msg)
-        elif msg.startswith("Warning:"):
-            logger.warning(msg)
-        else:
-            logger.info(msg)
-    logger.info(f"SK Config script finished. Please check for errors above. You may close this window.")
-    while True:
-        time.sleep(100)
-
-
 def setup_logger(log_file: Path = LOG_FILE, level: int = logging.DEBUG) -> logging.Logger:
     """
     Sets up logging with file and console handler
@@ -357,7 +337,9 @@ if __name__ == '__main__':
     # connect
     connected = wait_for_server()
     if not connected:
-        end_loop("Error: CAN'T CONNECT TO SERVER! Please check above. Server not configured.")
+        print()
+        logger.error("CAN'T CONNECT TO SERVER! Please check logs or above. Server NOT configured.")
+        exit(1)
 
     # send commands
     gamerule_errors = send_gamerules()
@@ -367,9 +349,13 @@ if __name__ == '__main__':
     # endgame
     if gamerule_errors or command_errors:
         send_command(build_command(f"say SK Tooling: Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please check terminal!"))
-        end_loop(f"Warning: Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}")
+
+        print()
+        logger.warning(f"Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please logs or check above.")
+        exit(1)
 
     # end of the endgame
     send_command(build_command("say SK Tooling: Everything is ready to go! Have fun :D ~chris"))
 
-    end_loop(f"Finished server configuration with {gamerule_errors + command_errors} errors.")
+    logger.info(f"SK Config script finished. Please check for warnings above. You may close this window.")
+    exit(0)
