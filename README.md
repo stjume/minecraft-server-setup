@@ -8,18 +8,18 @@ Designed for SK jugend und medien workshops.
 ## Features
 
 - **Automatic server startup** with Java configuration
-- **Automatic gamerule configuration** from `sk_gamerule.properties`
+- **Automatic gamerule configuration** and success validation from `sk_gamerule.properties`
 - **Custom command execution** from `sk_custom_commands.txt`
-- **RCON-based configuration** using mcrcon
-- **Comprehensive logging** with timestamped log files
+- **RCON-based configuration** using [mcrcon](https://github.com/Tiiffi/mcrcon/releases)
 - **Error handling** with user-friendly error messages
-- **Server connection retry** mechanism
 
 ## How to Use
 
-1. **Start the server**: Run `Start.bat`
-2. **Wait for configuration**: The script automatically waits for the server to start, then applies gamerules and custom commands
-3. **Verify success**: Look for `[Rcon] SK Tooling: Everything is ready to go!` in the server console
+0. **Requirements**: Ensure that all requirements are present (see [Requirements](#requirements))
+1. **Configure**: Specify the gamerules and commands you want to apply at startup in the provided configuration files.
+2. **Start the server**: Run `Start.bat`
+3. **Wait for configuration**: The script automatically waits for the server to start, then applies gamerules and custom commands
+4. **Verify success**: Look for `[Rcon] SK Tooling: Everything is ready to go!` in the server console or check the log file (`sk_startup_log_*`)
 
 ### Configuration Files
 
@@ -50,3 +50,8 @@ This is already configured in the `server.properties` in this repository.
 ## Supported Versions
 ### Tested
 - 1.21.10
+
+## AI disclosure
+- The initial version of this readme was AI generated based on the projects files.
+- Some standard documentation of the python code was AI generated.
+- All AI-generated code and text was audited by the authors.
