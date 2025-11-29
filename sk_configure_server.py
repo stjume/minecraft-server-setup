@@ -15,7 +15,10 @@ It requires the program `mcrcon` to be present in:
 `mcrcon` can be downloaded from:
     https://github.com/Tiiffi/mcrcon/releases/tag/v0.7.2  (windows-x86-64)
 
-`mcrcon` is used to disable PvP immediately after the server starts up.
+or you can use our helper script `sk_download_mcrcon.bat`
+
+
+`mcrcon` is used to send commands after the server starts up.
 
 The following settings **must** exist in `server.properties`:
     enable-rcon=true
