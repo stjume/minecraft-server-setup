@@ -29,6 +29,18 @@ setlocal
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
 start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar minecraft_server.1.21.10.jar
 
+:: Check EULA acceptance
+if not exist "eula.txt" (
+    msg * "ERROR: eula.txt not found! The minecraft server process should create it in a few seconds. Please then set eula=true in it and re-run this script. Otherwise the server won't start."
+    exit /b 1
+)
+
+findstr /C:"eula=true" "eula.txt" >nul
+if errorlevel 1 (
+    msg * "ERROR: EULA not accepted! Please set eula=true in eula.txt and re-run this script. Otherwise the server won't start."
+    exit /b 1
+)
+
 :: Custom server config
 python sk_configure_server.py
 
