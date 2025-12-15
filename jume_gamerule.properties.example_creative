@@ -1,4 +1,4 @@
-# this is no mc standard, it's a SK internal thing, it s used by sk_configure_server.py!
+# this is no mc standard, it's a jume internal thing, it s used by jume_configure_server.py!
 # just plug you gamerules in here, in the format
 # name=value (without the #!)
 # lines with a # are comments and will be ignored.

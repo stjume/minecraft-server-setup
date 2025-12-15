@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-:: This script is developed for the SK jugend und medien
+:: This script is developed for the stiftung jugend und medien
 :: Its purpose is to start a minecraft server and automatically set the gamerules and custom commands.
 :: It requires this program mcrcon to be present at .\helper 
 :: -> .\helpers\mcrcon.exe
@@ -15,7 +15,7 @@ setlocal
 :: The latter must match 'RCON_PASSWORD' in the called python script
 
 :: If everything goes to plan you should see the following in 'Log and Chat' in the Minecraft Server Window:
-:: [Not Secure] [Rcon] SK Tooling: Everything is ready to go!
+:: [Not Secure] [Rcon] jume Tooling: Everything is ready to go!
 
 :: Don't worry about the 'not secure' part too much. We're in a local network. It _should_ be fine :P
 :: If you get an error message this means that something *did not work*.
@@ -42,7 +42,7 @@ if errorlevel 1 (
 )
 
 :: Custom server config
-python sk_configure_server.py
+python jume_configure_server.py
 
 pause
 

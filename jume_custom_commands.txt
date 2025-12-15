@@ -1,0 +1,9 @@
+# this is no mc standard, it's a jume internal thing, it is used by configure_server.py!
+# just plug you commands in here. one per line. no starting slash needed.
+# lines starting with a # are comments and will be ignored.
+
+# there is no real check if the commands where successful atm.
+# please put game rules inside the jume_gamerule.properties because contents of that file are validated for success.
+
+op jume1
+op jumebonn1

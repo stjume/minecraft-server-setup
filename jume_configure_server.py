@@ -1,5 +1,5 @@
 """
-This script is developed for the SK jugend und medien.
+This script is developed for the stiftung jugend und medien.
 
 Its purpose is to start a Minecraft server and automatically set a set of
 gamerules and custom commands as soon as the server has started.
@@ -15,7 +15,7 @@ It requires the program `mcrcon` to be present in:
 `mcrcon` can be downloaded from:
     https://github.com/Tiiffi/mcrcon/releases/tag/v0.7.2  (windows-x86-64)
 
-or you can use our helper script `sk_download_mcrcon.bat`
+or you can use our helper script `jume_download_mcrcon.bat`
 
 
 `mcrcon` is used to send commands after the server starts up.
@@ -29,9 +29,9 @@ The password must match the variable `RCON_PASSWORD` defined in this script.
 If everything works correctly, you should see the following in the
 *Log and Chat* output inside the Minecraft server console:
 
-    [Not Secure] [Rcon] SK Tooling: Everything is ready to go!
+    [Not Secure] [Rcon] jume Tooling: Everything is ready to go!
     
-Or you can check the log file `sk_startup_log_*`
+Or you can check the log file `jume_startup_log_*`
 
 (The “not secure” warning is normal — this RCON usage is inside a
 local network and should be fine.)
@@ -71,12 +71,12 @@ RCON_PASSWORD = "verySecurePasswordThatYouShouldntChange"
 MC_RCON_LOCATION = Path("helpers/mcrcon.exe")
 
 # locations where we expect the config files
-GAME_RULES_FILE = 'sk_gamerule.properties'
-CUSTOM_COMMANDS_FILE = 'sk_custom_commands.txt'
+GAME_RULES_FILE = 'jume_gamerule.properties'
+CUSTOM_COMMANDS_FILE = 'jume_custom_commands.txt'
 
 # logging stuff
 now = datetime.now()
-LOG_FILE = Path(f"sk_startup_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.hour:02d}_{now.minute:02d}_{now.second:02d}.log")
+LOG_FILE = Path(f"jume_startup_log_{now.year}_{now.month:02d}_{now.day:02d}-{now.hour:02d}_{now.minute:02d}_{now.second:02d}.log")
 
 
 def build_command(_cmd: str) -> list[str]:
@@ -126,7 +126,7 @@ def build_error_message(reason: str) -> list[str]:
         A list of error message strings formatted for display (via display_err_msg())
     """
     return [
-        f"1/4 Error: SK-Internal Tooling: {reason} Turning PvP off automatically failed! The server might be running but not configured as expected.",
+        f"1/4 Error: jume-Internal Tooling: {reason} Turning PvP off automatically failed! The server might be running but not configured as expected.",
         f"2/4 Use '/gamerule pvp false' ingame to disable it! Have a look at '{GAME_RULES_FILE}' and '{CUSTOM_COMMANDS_FILE}' to check if any other important configuration might have failed. (Remember.: PvP is not allowed in Workshops).",
         f"3/4 Please report this incident! (What template did you use? Was it the first start of the server? Were '{GAME_RULES_FILE}' and '{CUSTOM_COMMANDS_FILE}' present? Any other remarks?)",
         f"4/4 You can find the full log of this script execution at '{LOG_FILE.as_posix()}'"
@@ -356,14 +356,14 @@ if __name__ == '__main__':
 
     # endgame
     if gamerule_errors or command_errors:
-        send_command(build_command(f"say SK Tooling: Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please check terminal!"))
+        send_command(build_command(f"say jume Tooling: Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please check terminal!"))
 
         print()
         logger.warning(f"Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please logs or check above.")
         exit(1)
 
     # end of the endgame
-    send_command(build_command("say SK Tooling: Everything is ready to go! Have fun :D ~chris"))
+    send_command(build_command("say jume Tooling: Everything is ready to go! Have fun :D ~chris"))
 
-    logger.info(f"SK Config script finished. Please check for warnings above. You may close this window.")
+    logger.info(f"jume Config script finished. Please check for warnings above. You may close this window.")
     exit(0)

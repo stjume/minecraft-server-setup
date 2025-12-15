@@ -3,13 +3,13 @@
 ## TL;DR
 
 Automated tooling for starting and configuring a (local) Minecraft server under Windows with a custom set of gamerules and commands.
-Designed for SK jugend und medien workshops.
+Designed for Stiftung jugend und medien workshops.
 
 ## Features
 
 - **Automatic server startup** with Java configuration
-- **Automatic gamerule configuration** and success validation from `sk_gamerule.properties`
-- **Custom command execution** from `sk_custom_commands.txt`
+- **Automatic gamerule configuration** and success validation from `jume_gamerule.properties`
+- **Custom command execution** from `jume_custom_commands.txt`
 - **RCON-based configuration** using [mcrcon](https://github.com/Tiiffi/mcrcon/releases)
 - **Error handling** with user-friendly error messages
 
@@ -19,12 +19,12 @@ Designed for SK jugend und medien workshops.
 1. **Configure**: Specify the gamerules and commands you want to apply at startup in the provided configuration files.
 2. **Start the server**: Run `Start.bat`
 3. **Wait for configuration**: The script automatically waits for the server to start, then applies gamerules and custom commands
-4. **Verify success**: Look for `[Rcon] SK Tooling: Everything is ready to go!` in the server console or check the log file (`sk_startup_log_*`)
+4. **Verify success**: Look for `[Rcon] jume Tooling: Everything is ready to go!` in the server console or check the log file (`jume_startup_log_*`)
 
 ### Configuration Files
 
-- **`sk_gamerule.properties`**: Define gamerules in `rule=value` format (one per line, `#` for comments)
-- **`sk_custom_commands.txt`**: Add custom server commands (one per line, without leading `/`, `#` for comments)
+- **`jume_gamerule.properties`**: Define gamerules in `rule=value` format (one per line, `#` for comments)
+- **`jume_custom_commands.txt`**: Add custom server commands (one per line, without leading `/`, `#` for comments)
 
 ## Requirements
 
@@ -34,9 +34,9 @@ Designed for SK jugend und medien workshops.
 - **[Minecraft Server JAR[(https://www.minecraft.net/de-de/download/server)** (e.g., `minecraft_server.1.21.10.jar`)
 
 ### Tools
-- **mcrcon.exe** must be located at the location specified in `MC_RCON_LOCATION` in `sk_configure_server.py` (default: `helpers/mcrcon.exe`)
+- **mcrcon.exe** must be located at the location specified in `MC_RCON_LOCATION` in `jume_configure_server.py` (default: `helpers/mcrcon.exe`)
   - Download: https://github.com/Tiiffi/mcrcon/releases/tag/v0.7.2 (windows-x86-64)
-- You can use our helper script `sk_download_mcrcon.bat` to download it
+- You can use our helper script `jume_download_mcrcon.bat` to download it
 
 ### Server Configuration
 The following settings **must** be present in `server.properties`:
@@ -46,7 +46,7 @@ rcon.password=verySecurePasswordThatYouShouldntChange
 ```
 This is already configured in the `server.properties` in this repository.
 
-**Note**: The RCON password must match `RCON_PASSWORD` in `sk_configure_server.py` (default: `verySecurePasswordThatYouShouldntChange`).
+**Note**: The RCON password must match `RCON_PASSWORD` in `jume_configure_server.py` (default: `verySecurePasswordThatYouShouldntChange`).
 
 ## Supported Versions
 ### Tested
