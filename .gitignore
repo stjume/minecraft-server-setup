@@ -3,6 +3,8 @@
 
 *.log
 
+eula.txt
+
 ### Batch ###
 # BatchFiles
 *.cmd
