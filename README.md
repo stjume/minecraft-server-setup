@@ -49,8 +49,12 @@ This is already configured in the `server.properties` in this repository.
 **Note**: The RCON password must match `RCON_PASSWORD` in `jume_configure_server.py` (default: `verySecurePasswordThatYouShouldntChange`).
 
 ## Supported Versions
-### Tested
+Note: Minecraft changed its gamerule naming scheme from `camelCase` to `snake_case` with the release of `1.21.11`.  
+E.g.: `keepInventory` is now `keep_inventory`.
+You can have both versions configured in your `jume_gamerule.properties`, the wrongly-formatted ones will produce a warning in the output, but won't influence the success of other gamrules.
+### Tested (maybe incomplete)
 - 1.21.10
+- 1.21.11 (requires `snake_case` formatting)
 
 ## About
 Since Minecraft `1.21.10`, PvP is no longer a setting in the `server.properties` instead it's a game rule.
