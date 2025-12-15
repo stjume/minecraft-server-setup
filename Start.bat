@@ -29,6 +29,10 @@ setlocal
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
 start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar minecraft_server.1.21.10.jar
 
+
+:: PROMPT: add a check if an eula.txt exists and if there's a value eula=true in it. before the server is started
+:: if not use the msg popup to notifiy the user and exit the script.
+
 :: Check EULA acceptance
 if not exist "eula.txt" (
     msg * "ERROR: eula.txt not found! The minecraft server process should create it in a few seconds. Please then set eula=true in it and re-run this script. Otherwise the server won't start."
