@@ -174,7 +174,7 @@ def wait_for_server(wait_cycles: int = WAIT_CYCLES, wait_time_per_try: float = W
             return False
 
         if result.stderr:
-            logger.info(f"Can't connect to server for config, retrying in {wait_time_per_try}s (retry: {retry_i})")
+            logger.debug(f"Can't connect to server for config, retrying in {wait_time_per_try}s (retry: {retry_i})")
             time.sleep(wait_time_per_try)
             continue
 
@@ -192,11 +192,13 @@ def wait_for_server(wait_cycles: int = WAIT_CYCLES, wait_time_per_try: float = W
 
 
     else:
-        logger.debug("Server up, can connect!")
+        print()
+        logger.info("Server up, can connect! (You can ignore all messages above)")
+        print()
         return True
 
 
-def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
+def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> tuple[int, int]:
     """
     Sets gamerules from a configuration file by sending them to server
     Expects the server to be available for connection
@@ -205,7 +207,7 @@ def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
         file: Path to the gamerule configuration file. Defaults to GAME_RULES_FILE
 
     Returns:
-        Number of errors encountered during the process
+        Number of successes and errors encountered during the process
     """
     if not file.exists():
         msg = f"Can't find file '{file}'."
@@ -219,6 +221,7 @@ def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
     lines = text.split("\n")
 
     errors = 0
+    successes = 0
     for l in lines:
         l = l.strip()
         if l.startswith("#") or not l:
@@ -251,10 +254,12 @@ def send_gamerules(file: Path = Path(GAME_RULES_FILE)) -> int:
             errors += 1
             continue
 
-    return errors
+        successes += 1
+
+    return successes, errors
 
 
-def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
+def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> tuple[int, int]:
     """
     Sends arbitrary commands to server (without success validation)
     Expects the server to be available for connection
@@ -263,7 +268,7 @@ def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
         file: Path to the custom commands file. Defaults to CUSTOM_COMMANDS_FILE
 
     Returns:
-        Number of obvious errors encountered during execution
+        Number of successes and obvious errors encountered during execution
     """
     if not file.exists():
         logger.error(f"Can't find file '{file}', no commands executed.")
@@ -273,6 +278,7 @@ def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
     lines = text.split("\n")
 
     errors = 0
+    successes = 0
     for line in lines:
         line = line.strip()
         if line.startswith("#") or not line:
@@ -288,8 +294,11 @@ def send_arbitrary_commands(file: Path = Path(CUSTOM_COMMANDS_FILE)) -> int:
         if result.stderr:
             errors += 1
             logger.error(f"Encountered error '{result.stderr}' for command '{cmd}'")
+            continue
+        
+        successes += 1
 
-    return errors
+    return successes, errors
 
 
 def setup_logger(log_file: Path = LOG_FILE, level: int = logging.DEBUG) -> logging.Logger:
@@ -350,16 +359,27 @@ if __name__ == '__main__':
         exit(1)
 
     # send commands
-    gamerule_errors = send_gamerules()
+    gamerule_successes, gamerule_errors = send_gamerules()
 
-    command_errors = send_arbitrary_commands()
+    command_successes, command_errors = send_arbitrary_commands()
 
     # endgame
     if gamerule_errors or command_errors:
         send_command(build_command(f"say jume Tooling: Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please check terminal!"))
 
         print()
-        logger.warning(f"Game Rule Errors: {gamerule_errors}, Command Errors: {command_errors}. Please logs or check above.")
+
+        logger.info(
+            "NOTE: from version 1.21.11+ all gamerules were changed from camelCase to snake_case.\n"
+            "Example: -> keepInvetory is now keep_inventory\n"
+            "This might be the cause why configuring some gamerules failed. (it's okay to have both versions in your properties file, you just have to live with this warning.)"
+            )
+        
+        print()
+
+        logger.warning(
+            f"Game Rule Errors: {gamerule_errors} (Successes: {gamerule_successes}), Command Errors: {command_errors} (Successes: {command_successes}). Please logs or check above.\n"
+        )
         exit(1)
 
     # end of the endgame
