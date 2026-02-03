@@ -32,6 +32,7 @@ Designed for Stiftung jugend und medien workshops.
 - **Java JDK 21** (path configured in `Start.bat`)
 - **Python 3** (for configuration script)
 - **[Minecraft Server JAR[(https://www.minecraft.net/de-de/download/server)** (e.g., `minecraft_server.1.21.10.jar`)
+  - Rename it to `server.jar`
 
 ### Tools
 - **mcrcon.exe** must be located at the location specified in `MC_RCON_LOCATION` in `jume_configure_server.py` (default: `helpers/mcrcon.exe`)
@@ -39,6 +40,8 @@ Designed for Stiftung jugend und medien workshops.
 - You can use our helper script `jume_download_mcrcon.bat` to download it
 
 ### Server Configuration
+It is assumed that the minecraft server `.jar` is called `server.jar`, if you want another name to be called you can change it in `Start.bat`.
+
 The following settings **must** be present in `server.properties`:
 ```
 enable-rcon=true
