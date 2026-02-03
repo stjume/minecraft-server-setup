@@ -167,10 +167,11 @@ def wait_for_server(wait_cycles: int = WAIT_CYCLES, wait_time_per_try: float = W
         try:
             result = send_command(cmd)
         except FileNotFoundError:
-            msg = f"'mcrcon.exe' is not located in {MC_RCON_LOCATION.parent.as_posix()} - please download it!"
+            msg = [f"'mcrcon.exe' is not located in {MC_RCON_LOCATION.parent.as_posix()} - please download it!"
+                   f"You can download it with the helper script 'jume_download_mcrcon.bat'",
+                   "PvP is NOT disabled!"]
             logger.error(msg)
-            msgs = build_error_message(msg)
-            display_err_msg(msgs)
+            display_err_msg(msg)
             return False
 
         if result.stderr:
