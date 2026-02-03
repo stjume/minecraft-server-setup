@@ -27,7 +27,7 @@ setlocal
 
 :: Start the server
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
-start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar minecraft_server.1.21.10.jar
+start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar server.jar
 
 
 :: PROMPT: add a check if an eula.txt exists and if there's a value eula=true in it. before the server is started
