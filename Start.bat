@@ -51,7 +51,6 @@ if not errorlevel 1 if "%MC_RCON_LOCATION%"=="" if not exist ".\helpers\mcrcon.e
     )
 )
 
-
 :: Start the server
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
 :: Our standard server is started by calling a server.jar directly
@@ -59,7 +58,7 @@ set JAVA_HOME="C:\Program Files\Java\jdk-21"
 if exist "server.jar" (
     start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar server.jar
 ) else if exist "run.bat" (
-    call run.bat
+    start run.bat
 ) else (
     msg * "ERROR: server.jar (standard servers) or run.bat (forge servers) not found! Cannot start the server."
     exit /b 1
