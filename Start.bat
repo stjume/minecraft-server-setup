@@ -24,6 +24,11 @@ setlocal
 
 :: Author: Chris G
 
+where python >nul 2>nul
+if errorlevel 1 (
+    msg * "ERROR: Python is not installed! The minecraft server will start, but no Gamerules or Commands will be set on startup. Disable PvP manually with /gamerule pvp false"
+)
+
 
 :: Start the server
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
