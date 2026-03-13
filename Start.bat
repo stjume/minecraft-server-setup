@@ -38,17 +38,7 @@ if errorlevel 1 (
 :: If yes: Then call .\jume_download_mcrcon.bat
 where python >nul 2>nul
 if not errorlevel 1 if "%MC_RCON_LOCATION%"=="" if not exist ".\helpers\mcrcon.exe" (
-    powershell -NoProfile -Command ^
-      "[void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms');" ^
-      "$r = [System.Windows.Forms.MessageBox]::Show('mcrcon.exe is missing at default location. Download and install now?', 'mcrcon installer', 'YesNo', 'Question');" ^
-      "if ($r -eq [System.Windows.Forms.DialogResult]::Yes) { exit 0 } else { exit 1 }"
-
-    if %errorlevel%==0 (
-        :: blocking call until finished
-        call ".\jume_download_mcrcon.bat"
-    ) else (
-        echo Skipping mcrcon installation. Gamerules and commands will not be executed. Disable PvP manually with /gamerule pvp false 
-    )
+    call ".\jume_prompt_install_mcrcon.ps1"
 )
 
 
