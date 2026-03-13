@@ -19,4 +19,5 @@ echo Cleaning up...
 del "%ZIPFILE%"
 
 echo Done! Files extracted to .\%DEST%
-pause
+:: Only when the script is run directly
+if "%~0"=="%~nx0" pause
