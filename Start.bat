@@ -38,19 +38,28 @@ if errorlevel 1 (
 :: If yes: Then call .\jume_download_mcrcon.bat
 where python >nul 2>nul
 if not errorlevel 1 if "%MC_RCON_LOCATION%"=="" if not exist ".\helpers\mcrcon.exe" (
-    call ".\jume_prompt_install_mcrcon.ps1"
+    powershell -NoProfile -Command ^
+      "[void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms');" ^
+      "$r = [System.Windows.Forms.MessageBox]::Show('mcrcon.exe is missing at default location. Download and install now?', 'mcrcon installer', 'YesNo', 'Question');" ^
+      "if ($r -eq [System.Windows.Forms.DialogResult]::Yes) { exit 0 } else { exit 1 }"
+
+    if %errorlevel%==0 (
+        :: blocking call until finished
+        call ".\jume_download_mcrcon.bat"
+    ) else (
+        echo Skipping mcrcon installation. Gamerules and commands will not be executed. Disable PvP manually with /gamerule pvp false 
+    )
 )
 
 
 :: Start the server
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
 :: Our standard server is started by calling a server.jar directly
+::  Forge servers bring their own run.bat that you should run to start
 if exist "server.jar" (
     start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar server.jar
-::  Forge servers bring their own run.bat that you should run to start
 ) else if exist "run.bat" (
     call run.bat
-:: Well. What happend here?!
 ) else (
     msg * "ERROR: server.jar (standard servers) or run.bat (forge servers) not found! Cannot start the server."
     exit /b 1
