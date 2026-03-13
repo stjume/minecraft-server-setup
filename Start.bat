@@ -31,6 +31,26 @@ if errorlevel 1 (
     msg * "ERROR: Python is not installed! The minecraft server will start, but no Gamerules or Commands will be set on startup. Disable PvP manually with /gamerule pvp false"
 )
 
+:: IF python is installed.
+:: IF mcrcon is NOT installed AND no custom path to mcrcon is set.
+:: Ask in a popup whether it shall be installed right now.
+:: (We call powershell here because it can do GUI dialogues)
+:: If yes: Then call .\jume_download_mcrcon.bat
+where python >nul 2>nul
+if not errorlevel 1 if "%MC_RCON_LOCATION%"=="" if not exist ".\helpers\mcrcon.exe" (
+    powershell -NoProfile -Command ^
+      "[void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms');" ^
+      "$r = [System.Windows.Forms.MessageBox]::Show('mcrcon.exe is missing at default location. Download and install now?', 'mcrcon installer', 'YesNo', 'Question');" ^
+      "if ($r -eq [System.Windows.Forms.DialogResult]::Yes) { exit 0 } else { exit 1 }"
+
+    if %errorlevel%==0 (
+        :: blocking call until finished
+        call ".\jume_download_mcrcon.bat"
+    ) else (
+        echo Skipping mcrcon installation. Gamerules and commands will not be executed. Disable PvP manually with /gamerule pvp false 
+    )
+)
+
 
 :: Start the server
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
