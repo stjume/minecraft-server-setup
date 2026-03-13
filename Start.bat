@@ -24,6 +24,8 @@ setlocal
 
 :: Author: Chris G
 
+
+:: Test if python is installed
 where python >nul 2>nul
 if errorlevel 1 (
     msg * "ERROR: Python is not installed! The minecraft server will start, but no Gamerules or Commands will be set on startup. Disable PvP manually with /gamerule pvp false"
@@ -32,7 +34,17 @@ if errorlevel 1 (
 
 :: Start the server
 set JAVA_HOME="C:\Program Files\Java\jdk-21"
-start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar server.jar
+:: Our standard server is started by calling a server.jar directly
+if exist "server.jar" (
+    start "" %JAVA_HOME%\bin\java -Xmx2048M -Xms2048M -jar server.jar
+::  Forge servers bring their own run.bat that you should run to start
+) else if exist "run.bat" (
+    call run.bat
+:: Well. What happend here?!
+) else (
+    msg * "ERROR: server.jar (standard servers) or run.bat (forge servers) not found! Cannot start the server."
+    exit /b 1
+)
 
 
 :: PROMPT: add a check if an eula.txt exists and if there's a value eula=true in it. before the server is started
